@@ -52,7 +52,11 @@ exports.searchDonors = async (req, res) => {
 exports.getDonorById = async (req, res) => {
   try {
     const donor = await DonorProfile.findById(req.params.id).populate("userId", "name email");
-    if (!donor) return res.status(404).json({ message: "Donor not found" });
+
+    if (!donor) {
+      return res.status(404).json({ message: "Donor not found" });
+    }
+
     return res.json({ donor });
   } catch (err) {
     return res.status(500).json({ message: "Server error", error: err.message });

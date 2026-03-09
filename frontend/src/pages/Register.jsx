@@ -6,16 +6,31 @@ export default function Register() {
     name: "",
     email: "",
     password: "",
-    role: "donor",
+    role: "donor"
   });
 
-  const onChange = (e) => setForm({ ...form, [e.target.name]: e.target.value });
+  const onChange = (e) => {
+    setForm({ ...form, [e.target.name]: e.target.value });
+  };
 
   const register = async () => {
     try {
-      const res = await axios.post("http://localhost:5000/api/auth/register", form);
-      alert("Registered ✅");
+      const res = await axios.post(
+        "http://localhost:5000/api/auth/register",
+        form
+      );
+
+      alert("Registered successfully ✅");
       console.log(res.data);
+
+      // clear form after register
+      setForm({
+        name: "",
+        email: "",
+        password: "",
+        role: "donor"
+      });
+
     } catch (err) {
       alert(err?.response?.data?.message || "Register failed ❌");
     }
@@ -25,28 +40,52 @@ export default function Register() {
     <div>
       <h3>Register</h3>
 
-      <input name="name" placeholder="Name" value={form.name} onChange={onChange} />
-      <br /><br />
+      <form autoComplete="off">
 
-      <input name="email" placeholder="Email" value={form.email} onChange={onChange} />
-      <br /><br />
+        <input
+          name="name"
+          placeholder="Name"
+          value={form.name}
+          onChange={onChange}
+          autoComplete="off"
+        />
 
-      <input
-        name="password"
-        type="password"
-        placeholder="Password"
-        value={form.password}
-        onChange={onChange}
-      />
-      <br /><br />
+        <br /><br />
 
-      <select name="role" value={form.role} onChange={onChange}>
-        <option value="donor">Donor</option>
-        <option value="user">User</option>
-      </select>
+        <input
+          name="email"
+          type="email"
+          placeholder="Email"
+          value={form.email}
+          onChange={onChange}
+          autoComplete="off"
+        />
 
-      <br /><br />
-      <button onClick={register}>Register</button>
+        <br /><br />
+
+        <input
+          name="password"
+          type="password"
+          placeholder="Password"
+          value={form.password}
+          onChange={onChange}
+          autoComplete="new-password"
+        />
+
+        <br /><br />
+
+        <select name="role" value={form.role} onChange={onChange}>
+          <option value="donor">Donor</option>
+          <option value="requester">Requester</option>
+        </select>
+
+        <br /><br />
+
+        <button type="button" onClick={register}>
+          Register
+        </button>
+
+      </form>
     </div>
   );
 }

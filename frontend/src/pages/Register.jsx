@@ -6,33 +6,40 @@ export default function Register() {
     name: "",
     email: "",
     password: "",
-    role: "donor"
+    role: "donor",
   });
 
-  const onChange = (e) => {
-    setForm({ ...form, [e.target.name]: e.target.value });
-  };
+  const onChange = (e) => setForm({ ...form, [e.target.name]: e.target.value });
 
   const register = async () => {
-    try {
-      const res = await axios.post(
-        "http://localhost:5000/api/auth/register",
-        form
-      );
+    const payload = {
+      ...form,
+      name: form.name.trim(),
+      email: form.email.trim().toLowerCase(),
+    };
 
-      alert("Registered successfully ✅");
+    if (!payload.name || !payload.email || !payload.password) {
+      alert("Please fill name, email, and password.");
+      return;
+    }
+
+    try {
+      const res = await axios.post("http://localhost:5000/api/auth/register", payload);
+      alert("Registered successfully");
       console.log(res.data);
 
-      // clear form after register
       setForm({
         name: "",
         email: "",
         password: "",
-        role: "donor"
+        role: "donor",
       });
-
     } catch (err) {
-      alert(err?.response?.data?.message || "Register failed ❌");
+      const message =
+        err?.response?.data?.message ||
+        (err?.request ? "Cannot reach backend. Ensure backend is running on port 5000." : null) ||
+        "Registration failed";
+      alert(message);
     }
   };
 
@@ -40,52 +47,34 @@ export default function Register() {
     <div>
       <h3>Register</h3>
 
-      <form autoComplete="off">
+      <input name="name" placeholder="Name" value={form.name} onChange={onChange} />
+      <br /><br />
 
-        <input
-          name="name"
-          placeholder="Name"
-          value={form.name}
-          onChange={onChange}
-          autoComplete="off"
-        />
+      <input
+        name="email"
+        type="email"
+        placeholder="Email"
+        value={form.email}
+        onChange={onChange}
+      />
+      <br /><br />
 
-        <br /><br />
+      <input
+        name="password"
+        type="password"
+        placeholder="Password"
+        value={form.password}
+        onChange={onChange}
+      />
+      <br /><br />
 
-        <input
-          name="email"
-          type="email"
-          placeholder="Email"
-          value={form.email}
-          onChange={onChange}
-          autoComplete="off"
-        />
+      <select name="role" value={form.role} onChange={onChange}>
+        <option value="donor">Donor</option>
+        <option value="user">User</option>
+      </select>
 
-        <br /><br />
-
-        <input
-          name="password"
-          type="password"
-          placeholder="Password"
-          value={form.password}
-          onChange={onChange}
-          autoComplete="new-password"
-        />
-
-        <br /><br />
-
-        <select name="role" value={form.role} onChange={onChange}>
-          <option value="donor">Donor</option>
-          <option value="requester">Requester</option>
-        </select>
-
-        <br /><br />
-
-        <button type="button" onClick={register}>
-          Register
-        </button>
-
-      </form>
+      <br /><br />
+      <button onClick={register}>Register</button>
     </div>
   );
 }

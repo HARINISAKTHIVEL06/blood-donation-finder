@@ -18,25 +18,16 @@ export default function CreateProfile() {
   const saveProfile = async () => {
     try {
       const token = localStorage.getItem("token");
-      if (!token) {
-        alert("Please login first");
-        return;
-      }
+      if (!token) return alert("Please login first ❌");
 
-      const res = await axios.post(
-        "http://localhost:5000/api/donors/profile",
-        form,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
+      const res = await axios.post("http://localhost:5000/api/donors/profile", form, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
 
-      alert("Profile saved successfully");
+      alert("Profile saved ✅");
       console.log(res.data);
     } catch (err) {
-      alert(err?.response?.data?.message || "Profile save failed");
+      alert(err?.response?.data?.message || "Profile save failed ❌");
     }
   };
 
@@ -47,54 +38,28 @@ export default function CreateProfile() {
       <label>Blood Group</label>
       <br />
       <select name="bloodGroup" value={form.bloodGroup} onChange={onChange}>
-        {["A+", "A-", "B+", "B-", "O+", "O-", "AB+", "AB-"].map((bg) => (
-          <option key={bg} value={bg}>
-            {bg}
-          </option>
+        {["A+","A-","B+","B-","O+","O-","AB+","AB-"].map((bg) => (
+          <option key={bg} value={bg}>{bg}</option>
         ))}
       </select>
 
       <br /><br />
 
-      <input
-        name="phone"
-        placeholder="Phone"
-        value={form.phone}
-        onChange={onChange}
-      />
-
+      <input name="phone" placeholder="Phone" value={form.phone} onChange={onChange} />
       <br /><br />
 
-      <input
-        name="city"
-        placeholder="City"
-        value={form.city}
-        onChange={onChange}
-      />
-
+      <input name="city" placeholder="City" value={form.city} onChange={onChange} />
       <br /><br />
 
-      <input
-        name="area"
-        placeholder="Area"
-        value={form.area}
-        onChange={onChange}
-      />
-
+      <input name="area" placeholder="Area" value={form.area} onChange={onChange} />
       <br /><br />
 
       <label>
-        <input
-          type="checkbox"
-          name="available"
-          checked={form.available}
-          onChange={onChange}
-        />
+        <input type="checkbox" name="available" checked={form.available} onChange={onChange} />
         Available to donate
       </label>
 
       <br /><br />
-
       <button onClick={saveProfile}>Save Profile</button>
     </div>
   );

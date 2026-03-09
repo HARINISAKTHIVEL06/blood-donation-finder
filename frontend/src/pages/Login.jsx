@@ -20,14 +20,7 @@ export default function Login() {
     <div>
       <h3>Login</h3>
 
-      <input
-        name="email"
-        placeholder="Email"
-        value={form.email}
-        onChange={onChange}
-        autoComplete="off"
-      />
-
+      <input name="email" placeholder="Email" value={form.email} onChange={onChange} />
       <br /><br />
 
       <input
@@ -36,9 +29,7 @@ export default function Login() {
         placeholder="Password"
         value={form.password}
         onChange={onChange}
-        autoComplete="new-password"
       />
-
       <br /><br />
 
       <button onClick={login}>Login</button>

@@ -16,6 +16,11 @@ exports.register = async (req, res) => {
     const salt = await bcrypt.genSalt(10);
     const hashed = await bcrypt.hash(password, salt);
 
+    const allowedRoles = ["user", "donor", "admin"];
+    if (role && !allowedRoles.includes(role)) {
+      return res.status(400).json({ message: "Invalid role" });
+    }
+
     const user = await User.create({
       name,
       email,
@@ -29,6 +34,12 @@ exports.register = async (req, res) => {
       user: { id: user._id, name: user.name, email: user.email, role: user.role },
     });
   } catch (err) {
+    if (err.code === 11000) {
+      return res.status(400).json({ message: "Email already exists" });
+    }
+    if (err.name === "ValidationError") {
+      return res.status(400).json({ message: err.message });
+    }
     return res.status(500).json({ message: "Server error", error: err.message });
   }
 };

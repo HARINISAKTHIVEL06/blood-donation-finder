@@ -5,20 +5,6 @@ Blood Donation Finder is a full-stack MERN web application that helps users regi
 This project was developed as part of a **Web Development Phase 2 evaluation** to demonstrate frontend-backend integration, authentication, database usage, and REST API development.
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 ---
 
 ## 📖 Project Description

@@ -39,6 +39,42 @@ The project is built using the **MERN stack**:
 
 ---
 
+## Deployment
+
+This repo is prepared for deployment on Render using the root-level [render.yaml](./render.yaml).
+
+### Services
+- `blood-donation-finder-api`: Node.js backend
+- `blood-donation-finder-web`: static Vite frontend
+
+### Required environment variables
+
+For the backend service:
+- `MONGO_URI`
+- `JWT_SECRET`
+- `CORS_ORIGINS`
+
+For the frontend service:
+- `VITE_API_BASE_URL`
+
+### Render setup
+
+1. Push this repo to GitHub.
+2. In Render, create a new Blueprint and connect this repository.
+3. Set the backend environment variables:
+   - `MONGO_URI=<your MongoDB Atlas connection string>`
+   - `JWT_SECRET=<a strong secret>`
+   - `CORS_ORIGINS=<your frontend Render URL>`
+4. Set the frontend environment variable:
+   - `VITE_API_BASE_URL=<your backend Render URL>`
+5. Deploy the Blueprint.
+
+Example production values:
+- `CORS_ORIGINS=https://blood-donation-finder-web.onrender.com`
+- `VITE_API_BASE_URL=https://blood-donation-finder-api.onrender.com`
+
+---
+
 ## 🛠️ Tech Stack
 
 ### Frontend

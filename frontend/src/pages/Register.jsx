@@ -1,80 +1,147 @@
 import { useState } from "react";
-import axios from "axios";
+import { useNavigate } from "react-router-dom";
+import { API_BASE_URL } from "../config";
+import "../App.css";
 
 export default function Register() {
-  const [form, setForm] = useState({
-    name: "",
-    email: "",
-    password: "",
-    role: "donor",
-  });
+  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
+  const [success, setSuccess] = useState("");
 
-  const onChange = (e) => setForm({ ...form, [e.target.name]: e.target.value });
+  const navigate = useNavigate();
 
-  const register = async () => {
-    const payload = {
-      ...form,
-      name: form.name.trim(),
-      email: form.email.trim().toLowerCase(),
-    };
+  const handleRegister = async (e) => {
+    e.preventDefault();
+    setLoading(true);
+    setError("");
+    setSuccess("");
 
-    if (!payload.name || !payload.email || !payload.password) {
-      alert("Please fill name, email, and password.");
+    const trimmedPassword = password.trim();
+    const blockedPasswords = ["1234", "12345", "123456", "password", "admin"];
+
+    if (trimmedPassword.length < 6 || blockedPasswords.includes(trimmedPassword.toLowerCase())) {
+      setError("Use a stronger password. 1234 and other common default passwords are not allowed.");
+      setLoading(false);
       return;
     }
 
     try {
-      const res = await axios.post("http://localhost:5000/api/auth/register", payload);
-      alert("Registered successfully");
-      console.log(res.data);
-
-      setForm({
-        name: "",
-        email: "",
-        password: "",
-        role: "donor",
+      const response = await fetch(`${API_BASE_URL}/api/auth/register`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ name, email, password }),
       });
+
+      let data = {};
+      try {
+        data = await response.json();
+      } catch {
+        data = {};
+      }
+
+      if (!response.ok) {
+        throw new Error(data.message || "Registration failed");
+      }
+
+      if (data.token) {
+        localStorage.setItem("token", data.token);
+      }
+
+      if (data.user) {
+        localStorage.setItem("user", JSON.stringify(data.user));
+      }
+
+      window.dispatchEvent(new Event("auth-change"));
+      setSuccess("Registered successfully. Continue by creating your donor profile.");
+      setTimeout(() => navigate("/profile"), 800);
     } catch (err) {
-      const message =
-        err?.response?.data?.message ||
-        (err?.request ? "Cannot reach backend. Ensure backend is running on port 5000." : null) ||
-        "Registration failed";
-      alert(message);
+      setError(err.message || "Registration failed");
+    } finally {
+      setLoading(false);
     }
   };
 
   return (
-    <div>
-      <h3>Register</h3>
+    <div className="container">
+      <div className="glass-card auth-card">
+        <h2 className="title">Create Account</h2>
+        <p className="subtitle">Join the BloodLink community</p>
 
-      <input name="name" placeholder="Name" value={form.name} onChange={onChange} />
-      <br /><br />
+        {error && (
+          <div
+            style={{
+              color: "red",
+              marginBottom: "1rem",
+              backgroundColor: "#ffe6e6",
+              padding: "0.5rem",
+              borderRadius: "4px",
+            }}
+          >
+            {error}
+          </div>
+        )}
 
-      <input
-        name="email"
-        type="email"
-        placeholder="Email"
-        value={form.email}
-        onChange={onChange}
-      />
-      <br /><br />
+        {success && (
+          <div
+            style={{
+              color: "green",
+              marginBottom: "1rem",
+              backgroundColor: "#e6ffe6",
+              padding: "0.5rem",
+              borderRadius: "4px",
+            }}
+          >
+            {success}
+          </div>
+        )}
 
-      <input
-        name="password"
-        type="password"
-        placeholder="Password"
-        value={form.password}
-        onChange={onChange}
-      />
-      <br /><br />
+        <form onSubmit={handleRegister}>
+          <div className="input-group">
+            <label className="input-label">Full Name</label>
+            <input
+              className="input"
+              placeholder="John Doe"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              required
+            />
+          </div>
 
-      <select name="role" value={form.role} onChange={onChange}>
-        <option value="donor">Donor</option>
-        <option value="user">User</option>
-      </select>
+          <div className="input-group">
+            <label className="input-label">Email Address</label>
+            <input
+              className="input"
+              type="email"
+              placeholder="Enter your email address"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              autoComplete="off"
+              required
+            />
+          </div>
 
-      <br /><br />
-      <button onClick={register}>Register</button>
+          <div className="input-group">
+            <label className="input-label">Password</label>
+            <input
+              className="input"
+              placeholder="Use at least 6 characters"
+              type="password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              autoComplete="new-password"
+              minLength={6}
+              required
+            />
+          </div>
+
+          <button type="submit" className="btn-gradient" disabled={loading}>
+            {loading ? "Signing up..." : "Sign Up"}
+          </button>
+        </form>
+      </div>
     </div>
   );
 }

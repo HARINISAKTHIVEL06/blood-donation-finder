@@ -1,5 +1,7 @@
 const DonorProfile = require("../models/DonorProfile");
 
+const escapeRegex = (value) => value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+
 exports.createOrUpdateProfile = async (req, res) => {
   try {
     const { bloodGroup, phone, city, area, lastDonatedDate, available } = req.body;
@@ -30,14 +32,33 @@ exports.createOrUpdateProfile = async (req, res) => {
   }
 };
 
+exports.getMyProfile = async (req, res) => {
+  try {
+    const profile = await DonorProfile.findOne({ userId: req.user._id }).populate(
+      "userId",
+      "name email role"
+    );
+
+    return res.json({ profile });
+  } catch (err) {
+    return res.status(500).json({ message: "Server error", error: err.message });
+  }
+};
+
 exports.searchDonors = async (req, res) => {
   try {
-    const { bloodGroup, city, area } = req.query;
+    const { bloodGroup, city, area, location } = req.query;
 
     const filter = { available: true };
     if (bloodGroup) filter.bloodGroup = bloodGroup;
-    if (city) filter.city = new RegExp(city, "i");
-    if (area) filter.area = new RegExp(area, "i");
+
+    if (location) {
+      const locationRegex = new RegExp(escapeRegex(location), "i");
+      filter.$or = [{ city: locationRegex }, { area: locationRegex }];
+    } else {
+      if (city) filter.city = new RegExp(escapeRegex(city), "i");
+      if (area) filter.area = new RegExp(escapeRegex(area), "i");
+    }
 
     const donors = await DonorProfile.find(filter)
       .populate("userId", "name email")
